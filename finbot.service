@@ -1,0 +1,15 @@
+[Unit]
+Description=FinBot Telegram bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/finbot
+ExecStart=/opt/finbot/venv/bin/python /opt/finbot/bot.py
+Restart=always
+RestartSec=5
+# Бот сам читает BOT_TOKEN из .env в WorkingDirectory (load_dotenv).
+
+[Install]
+WantedBy=multi-user.target

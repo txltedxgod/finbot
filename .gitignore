@@ -1,0 +1,25 @@
+# ─── Secrets / environment ───
+.env
+fin.env
+*.env
+!.env.example
+
+# ─── Database / user data ───
+finance.db
+*.sqlite
+*.sqlite3
+*.db
+
+# ─── Python ───
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ─── OS / editor ───
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
