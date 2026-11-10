@@ -1,0 +1,18 @@
+[project]
+name = "finbot"
+version = "1.0.0"
+description = "Personal multi-currency finance tracker Telegram bot on SQLite"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+python_files = ["test_*.py"]
