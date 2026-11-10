@@ -1,14 +1,13 @@
-import sqlite3
 import os
-from typing import List, Dict, Any
-
+import sqlite3
+from typing import Any
 
 DB_PATH = os.getenv("DB_PATH", "finance.db")
 
 
 class Database:
-    def __init__(self):
-        self.path = DB_PATH
+    def __init__(self, db_path: str | None = None):
+        self.path = db_path or os.getenv("DB_PATH", DB_PATH)
         self._init()
 
     def _conn(self) -> sqlite3.Connection:
@@ -81,7 +80,7 @@ class Database:
                 (user_id, name)
             )
 
-    def get_user(self, user_id: int) -> Dict | None:
+    def get_user(self, user_id: int) -> dict | None:
         with self._conn() as conn:
             row = conn.execute(
                 "SELECT * FROM users WHERE id=?", (user_id,)
@@ -138,7 +137,7 @@ class Database:
             ).fetchone()
             return row["id"] if row else 0
 
-    def get_custom_categories(self, user_id: int) -> List[Dict]:
+    def get_custom_categories(self, user_id: int) -> list[dict]:
         with self._conn() as conn:
             rows = conn.execute(
                 "SELECT id, name FROM user_categories WHERE user_id=? ORDER BY created",
@@ -194,7 +193,7 @@ class Database:
             )
             return cur.rowcount > 0
 
-    def get_records_by_date(self, user_id: int, date: str) -> List[Dict]:
+    def get_records_by_date(self, user_id: int, date: str) -> list[dict]:
         with self._conn() as conn:
             rows = conn.execute(
                 "SELECT * FROM records WHERE user_id=? AND date=? ORDER BY created_at",
@@ -202,7 +201,7 @@ class Database:
             ).fetchall()
         return [dict(r) for r in rows]
 
-    def get_records_by_month(self, user_id: int, year: int, month: int) -> List[Dict]:
+    def get_records_by_month(self, user_id: int, year: int, month: int) -> list[dict]:
         month_str = f"{year}-{month:02d}"
         with self._conn() as conn:
             rows = conn.execute(
@@ -215,7 +214,7 @@ class Database:
 
     # ── Stats ──────────────────────────────────────────────────────────────
 
-    def get_expense_records(self, user_id: int) -> List[Dict]:
+    def get_expense_records(self, user_id: int) -> list[dict]:
         """All expense records, newest first (for per-category drilldown)."""
         with self._conn() as conn:
             rows = conn.execute(
@@ -225,7 +224,7 @@ class Database:
             ).fetchall()
         return [dict(r) for r in rows]
 
-    def get_category_totals(self, user_id: int, default_currency: str = "") -> List[Dict]:
+    def get_category_totals(self, user_id: int, default_currency: str = "") -> list[dict]:
         """Expense totals grouped by category + currency (empty currency -> default)."""
         with self._conn() as conn:
             rows = conn.execute(
@@ -237,7 +236,7 @@ class Database:
             ).fetchall()
         return [dict(r) for r in rows]
 
-    def get_stats(self, user_id: int, default_currency: str = "") -> Dict[str, Any]:
+    def get_stats(self, user_id: int, default_currency: str = "") -> dict[str, Any]:
         with self._conn() as conn:
             meta = conn.execute(
                 "SELECT COUNT(*) AS total_records, COUNT(DISTINCT date) AS days "
@@ -250,8 +249,8 @@ class Database:
                 (default_currency, user_id)
             ).fetchall()
 
-        income_by_cur: Dict[str, float] = {}
-        expense_by_cur: Dict[str, float] = {}
+        income_by_cur: dict[str, float] = {}
+        expense_by_cur: dict[str, float] = {}
         for r in rows:
             bucket = income_by_cur if r["type"] == "income" else expense_by_cur
             bucket[r["cur"]] = bucket.get(r["cur"], 0) + (r["total"] or 0)
